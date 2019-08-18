@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>D3: Drawing divs with data</title>
+    <script type="text/javascript" src="../d3.js"></script>
+    <style type="text/css">
+        div.bar {
+            display: inline-block;
+            width: 20px;
+            height: 75px;
+            background-color: teal;
+            margin-right: 2px;
+        }
+
+        svg circle {
+            fill: teal
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript">
+
+        var dataset = [5, 10, 13, 19, 21, 25, 22, 18, 15, 13,
+            11, 12, 15, 20, 18, 17, 16, 18, 23, 25];
+        var w = 500;
+        var h = 150;
+        var barPadding = 1;
+        var barHeightScaling = 6;
+
+        //Create SVG element
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+        svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("x", function (d, i) {
+                return i * (w / dataset.length);
+            })
+            .attr("y", function (d) {
+                return h - (d * barHeightScaling);
+            })
+            .attr("width", (w / dataset.length) - barPadding)
+            .attr("height", function (d) {
+
+                return d * barHeightScaling;
+            })
+            .attr("fill", function (d) {
+                return "rgb(" + Math.round(d * 5) + ", 0, " + Math.round(d * 10) + ")";
+            });
+
+        svg.selectAll("text")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .text(function (d) {
+                return d;
+            })
+            .attr("x", function (d, i) {
+                return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
+            })
+            .attr("y", function (d) {
+                return h - (d * barHeightScaling) + 14;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "11px")
+            .attr("fill", "white")
+            .attr("text-anchor", "middle");
+
+
+    </script>
+</body>
+
+
+</html>
