@@ -1,124 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>D3: Time axis, prettier</title>
-		<script type="text/javascript" src="../d3.js"></script>
-		<style type="text/css">
-			/* No style rules here yet */		
-		</style>
-	</head>
-	<body>
-		<script type="text/javascript">
 
-			//Width and height
-			var w = 500;
-			var h = 300;
-			var padding = 40;
-			
-			var dataset, xScale, yScale, xAxis, yAxis;  //Empty, for now
+<head>
+	<meta charset="utf-8">
+	<title>D3: Time axis, prettier</title>
+	<script type="text/javascript" src="../d3.js"></script>
+	<style type="text/css">
+		/* No style rules here yet */
+	</style>
+</head>
 
-			//For converting strings to Dates
-			var parseTime = d3.timeParse("%m/%d/%y");
+<body>
+	<script type="text/javascript">
 
-			//For converting Dates to strings
-			var formatTime = d3.timeFormat("%e");
+		//Width and height
+		var w = 700;
+		var h = 500;
+		var padding = 40;
 
-			//Function for converting CSV values from strings to Dates and numbers
-			var rowConverter = function(d) {
-				return {
-					Date: parseTime(d.Date),
-					Amount: parseInt(d.Amount)
-				};
-			}
+		var dataset, xScale, yScale, xAxis, yAxis;  //Empty, for now
 
-			//Load in the data
-			d3.csv("time_scale_data.csv", rowConverter, function(data) {
+		//For converting strings to Dates
+		var parseTime = d3.timeParse("%m/%d/%y");
 
-				//Copy data into global dataset
-				dataset = data;
+		//For converting Dates to strings
+		var formatTime = d3.timeFormat("%e");
 
-				//Discover start and end dates in dataset
-				var startDate = d3.min(dataset, function(d) { return d.Date; });
-				var endDate = d3.max(dataset, function(d) { return d.Date; });
+		//Function for converting CSV values from strings to Dates and numbers
+		var rowConverter = function (d) {
+			return {
+				Date: parseTime(d.Date),
+				Amount: parseInt(d.Amount)
+			};
+		}
 
-				//Create scale functions
-				xScale = d3.scaleTime()
-							   .domain([
-									d3.timeDay.offset(startDate, -1),  //startDate minus one day, for padding
-									d3.timeDay.offset(endDate, 1)	  //endDate plus one day, for padding
-								])
-							   .range([padding, w - padding]);
+		//Load in the data
+		d3.csv("time_scale_data.csv", rowConverter).then(function (data) {
 
-				yScale = d3.scaleLinear()
-							   .domain([
-									0,  //Because I want a zero baseline
-									d3.max(dataset, function(d) { return d.Amount; })
-								])
-							   .range([h - padding, padding]);
+			//Copy data into global dataset
+			dataset = data;
 
-				//Define X axis
-				xAxis = d3.axisBottom()
-								  .scale(xScale)
-								  .ticks(9)
-								  .tickFormat(formatTime);
+			//Discover start and end dates in dataset
+			var startDate = d3.min(dataset, function (d) { return d.Date; });
+			var endDate = d3.max(dataset, function (d) { return d.Date; });
 
-				//Define Y axis
-				yAxis = d3.axisLeft()
-								  .scale(yScale)
-								  .ticks(10);
+			//Create scale functions
+			xScale = d3.scaleTime()
+				.domain([
+					d3.timeDay.offset(startDate, -1),  //startDate minus one day, for padding
+					d3.timeDay.offset(endDate, 1)	  //endDate plus one day, for padding
+				])
+				.range([padding, w - padding]);
 
-				//Create SVG element
-				var svg = d3.select("body")
-							.append("svg")
-							.attr("width", w)
-							.attr("height", h);
+			yScale = d3.scaleLinear()
+				.domain([
+					0,  //Because I want a zero baseline
+					d3.max(dataset, function (d) { return d.Amount; })
+				])
+				.range([h - padding, padding]);
 
-				//Generate guide lines
-				svg.selectAll("line")
-				   .data(dataset)
-				   .enter()
-				   .append("line")
-				   .attr("x1", function(d) {
-				   		return xScale(d.Date);
-				   })
-				   .attr("x2", function(d) {
-				   		return xScale(d.Date);
-				   })
-				   .attr("y1", h - padding)
-				   .attr("y2", function(d) {
-				   		return yScale(d.Amount);
-				   })
-				   .attr("stroke", "#ddd")
-				   .attr("stroke-width", 1);
+			//Define X axis
+			xAxis = d3.axisBottom()
+				.scale(xScale)
+				.ticks(9)
+				.tickFormat(formatTime);
 
-				//Generate circles last, so they appear in front
-				svg.selectAll("circle")
-				   .data(dataset)
-				   .enter()
-				   .append("circle")
-				   .attr("cx", function(d) {
-				   		return xScale(d.Date);
-				   })
-				   .attr("cy", function(d) {
-				   		return yScale(d.Amount);
-				   })
-				   .attr("r", 2);
-	   			
-	   			//Create X axis
-	   			svg.append("g")
-	   				.attr("class", "axis")
-	   				.attr("transform", "translate(0," + (h - padding) + ")")
-	   				.call(xAxis);
-	   			
-	   			//Create Y axis
-	   			svg.append("g")
-	   				.attr("class", "axis")
-	   				.attr("transform", "translate(" + padding + ",0)")
-	   				.call(yAxis);
+			//Define Y axis
+			yAxis = d3.axisLeft()
+				.scale(yScale)
+				.ticks(10);
 
-			});
-			
-		</script>
-	</body>
+			//Create SVG element
+			var svg = d3.select("body")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h);
+
+			//Generate guide lines
+			svg.selectAll("line")
+				.data(dataset)
+				.enter()
+				.append("line")
+				.attr("x1", function (d) {
+					return xScale(d.Date);
+				})
+				.attr("x2", function (d) {
+					return xScale(d.Date);
+				})
+				.attr("y1", h - padding)
+				.attr("y2", function (d) {
+					return yScale(d.Amount);
+				})
+				.attr("stroke", "#ddd")
+				.attr("stroke-width", 2);
+
+			//Generate circles last, so they appear in front
+			svg.selectAll("circle")
+				.data(dataset)
+				.enter()
+				.append("circle")
+				.attr("cx", function (d) {
+					return xScale(d.Date);
+				})
+				.attr("cy", function (d) {
+					return yScale(d.Amount);
+				})
+				.attr("r", 2);
+
+			//Create X axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(0," + (h - padding) + ")")
+				.call(xAxis);
+
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + padding + ",0)")
+				.call(yAxis);
+
+		});
+
+	</script>
+</body>
+
 </html>
